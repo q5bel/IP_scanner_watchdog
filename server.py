@@ -1,6 +1,7 @@
 import os
 import threading
 import socket
+import ipaddress
 """
 Здесь мы проверяем все ip адреса в диапазоне в локальной подсети
 нужно сделать:
@@ -22,17 +23,16 @@ def check_ip(ip):
             print(ip + ' -----> IP is up')
 
 
-ip_list = []
-network = socket.gethostbyname(socket.gethostname())
-network_split = network.split('.')
-ip_head = ''
-for num in network_split[:-1]:
-    ip_head += num + '.'
-for last_digit in range(256):
-    ip_list.append(f'{ip_head}{last_digit}')
+network = socket.gethostbyname(socket.gethostname()).split('.')
+del network[-1]
+net = ''
+for i in network:
+    net += i + '.'
+
+ip_list = ipaddress.ip_network(f'{net}0/24')
 
 for ip in ip_list:
-    ptk = threading.Thread(target=check_ip, args=[ip])
+    ptk = threading.Thread(target=check_ip, args=[str(ip)])
     ptk.start()
 
 ptk.join()
